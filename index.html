@@ -4,24 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- SEO Meta Tags -->
-    <title>SakuKu - Aplikasi Pencatat Keuangan & Expense Tracker Online Gratis</title>
-    <meta name="description" content="Kelola keuangan pribadi dengan mudah menggunakan SakuKu. Aplikasi pencatat keuangan dan pengeluaran harian berbasis web yang cepat, ringan, dan praktis.">
-    <meta name="keywords" content="aplikasi keuangan, pencatat keuangan online, expense tracker, pengelola keuangan pribadi, catat pemasukan pengeluaran">
+    <!-- SEO Meta Tags Global -->
+    <title>SakuKu - Global Expense Tracker & Currency Converter</title>
+    <meta name="description" content="Manage your personal finances globally with SakuKu. Simple, fast, and multi-currency expense tracker supporting multiple languages.">
+    <meta name="keywords" content="global expense tracker, multi-currency budget app, pencatat keuangan internasional, app de control de gastos">
     <meta name="author" content="SakuKu App">
     <meta name="robots" content="index, follow">
 
+    <!-- Hreflang Tags untuk SEO Global (Ganti https://namadomainmu.com/ dengan domain aslimu) -->
+    <link rel="alternate" hreflang="id" href="https://namadomainmu.com/" />
+    <link rel="alternate" hreflang="en" href="https://namadomainmu.com/" />
+    <link rel="alternate" hreflang="es" href="https://namadomainmu.com/" />
+    <link rel="alternate" hreflang="zh" href="https://namadomainmu.com/" />
+    <link rel="alternate" hreflang="x-default" href="https://namadomainmu.com/" />
+
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="SakuKu - Aplikasi Pencatat Keuangan & Expense Tracker">
-    <meta property="og:description" content="Catat pemasukan dan pengeluaran harian dengan mudah secara online. Cek saldo otomatis dalam satu aplikasi!">
+    <meta property="og:title" content="SakuKu - Global Expense Tracker">
+    <meta property="og:description" content="Manage your income and expenses globally with automatic currency conversion.">
     <meta property="og:type" content="website">
-    <meta property="og:locale" content="id_ID">
 
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f4f7f6; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 400px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        .container { width: 100%; max-width: 420px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h2 { text-align: center; color: #333; margin: 0 0 15px 0; }
+        
+        /* Selector Negara/Mata Uang & Bahasa */
+        .global-settings { display: flex; gap: 8px; margin-bottom: 20px; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #e9ecef; }
+        .global-settings select { flex: 1; padding: 6px; border-radius: 6px; border: 1px solid #ced4da; font-size: 12px; background: #fff; cursor: pointer; }
+
         .balance-box { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; border: 1px solid #e9ecef; }
         .balance-box h3 { margin: 0; font-size: 14px; color: #6c757d; }
         .balance-box span { font-size: 24px; font-weight: bold; color: #2b2b2b; }
@@ -41,51 +52,177 @@
         .list li.minus { border-right-color: #e74c3c; }
         .delete-btn { position: absolute; background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 10px; border-radius: 4px; cursor: pointer; right: -25px; top: 12px; display: none; }
         .list li:hover .delete-btn { display: block; }
-        .reset-btn { background: #e74c3c; margin-top: 15px; }
-        .reset-btn:hover { background: #c0392b; }
+        .reset-btn { background: #6c757d; margin-top: 10px; }
+        .reset-btn:hover { background: #5a6268; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>SakuKu - Keuangan</h2>
+    <h2>SakuKu Global</h2>
+
+    <!-- Panel Pengaturan Global (Mata Uang & Bahasa) -->
+    <div class="global-settings">
+        <select id="currencySelect" onchange="changeCurrency()">
+            <option value="IDR">🇮🇩 IDR (Rp)</option>
+            <option value="USD">🇺🇸 USD ($)</option>
+            <option value="EUR">🇪🇺 EUR (€)</option>
+            <option value="JPY">🇯🇵 JPY (¥)</option>
+        </select>
+        <select id="langSelect" onchange="changeLanguage()">
+            <option value="id">🇮🇩 ID - Indonesia</option>
+            <option value="en">🇬🇧 EN - English</option>
+            <option value="es">🇪🇸 ES - Español</option>
+            <option value="zh">🇨🇳 ZH - 中文</option>
+        </select>
+    </div>
 
     <div class="balance-box">
-        <h3>SALDO SAAT INI</h3>
-        <span id="balance">Rp 0</span>
+        <h3 id="txtBalanceTitle">TOTAL SALDO</h3>
+        <span id="balance">0</span>
     </div>
 
     <div class="inc-exp-container">
         <div class="income">
-            <h4>Pemasukan</h4>
-            <p id="money-plus">Rp 0</p>
+            <h4 id="txtIncomeTitle">Pemasukan</h4>
+            <p id="money-plus">0</p>
         </div>
         <div class="expense">
-            <h4>Pengeluaran</h4>
-            <p id="money-minus">Rp 0</p>
+            <h4 id="txtExpenseTitle">Pengeluaran</h4>
+            <p id="money-minus">0</p>
         </div>
     </div>
 
-    <h3>Riwayat Transaksi</h3>
+    <h3 id="txtHistoryTitle">Riwayat Transaksi</h3>
     <ul id="list" class="list"></ul>
 
-    <h3>Tambah Transaksi Baru</h3>
+    <h3 id="txtAddTitle">Tambah Transaksi Baru</h3>
     <form id="form" onsubmit="addTransaction(event)">
         <div class="form-control">
-            <label for="text">Keterangan</label>
-            <input type="text" id="text" placeholder="Contoh: Gaji, Beli Makanan..." required />
+            <label id="lblDesc" for="text">Keterangan</label>
+            <input type="text" id="text" placeholder="Contoh: Gaji / Salary..." required />
         </div>
         <div class="form-control">
-            <label for="amount">Nominal (Gunakan tanda minus (-) untuk pengeluaran)</label>
+            <label id="lblAmount" for="amount">Nominal (Gunakan minus (-) untuk pengeluaran)</label>
             <input type="number" id="amount" placeholder="Contoh: 50000 atau -15000" required />
         </div>
-        <button type="submit">Tambah Transaksi</button>
+        <button type="submit" id="btnSubmit">Tambah Transaksi</button>
     </form>
-    
-    <button class="reset-btn" onclick="resetData()" style="margin-top: 10px; background-color: #6c757d;">Reset Semua Data</button>
+
+    <button class="reset-btn" id="btnReset" onclick="resetData()">Reset Semua Data</button>
 </div>
 
 <script>
+    let currentCurrency = 'IDR';
+    let currentLang = 'id';
+
+    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+
+    // Kamus Terjemahan Global (Multi-Bahasa)
+    const translations = {
+        id: {
+            balanceTitle: "TOTAL SALDO",
+            incomeTitle: "Pemasukan",
+            expenseTitle: "Pengeluaran",
+            historyTitle: "Riwayat Transaksi",
+            addTitle: "Tambah Transaksi Baru",
+            lblDesc: "Keterangan",
+            lblAmount: "Nominal (Gunakan minus (-) untuk pengeluaran)",
+            btnSubmit: "Tambah Transaksi",
+            btnReset: "Reset Semua Data",
+            phDesc: "Contoh: Gaji, Kopi...",
+            phAmount: "Contoh: 50000 atau -15000",
+            alertFill: "Mohon isi keterangan dan nominal!",
+            confirmReset: "Yakin ingin menghapus semua data transaksi?"
+        },
+        en: {
+            balanceTitle: "TOTAL BALANCE",
+            incomeTitle: "Income",
+            expenseTitle: "Expense",
+            historyTitle: "Transaction History",
+            addTitle: "Add New Transaction",
+            lblDesc: "Description",
+            lblAmount: "Amount (Use minus (-) for expense)",
+            btnSubmit: "Add Transaction",
+            btnReset: "Reset All Data",
+            phDesc: "e.g., Salary, Coffee...",
+            phAmount: "e.g., 50 or -15",
+            alertFill: "Please fill in both description and amount!",
+            confirmReset: "Are you sure you want to clear all transactions?"
+        },
+        es: {
+            balanceTitle: "SALDO TOTAL",
+            incomeTitle: "Ingresos",
+            expenseTitle: "Gastos",
+            historyTitle: "Historial de Transacciones",
+            addTitle: "Agregar Nueva Transacción",
+            lblDesc: "Descripción",
+            lblAmount: "Monto (Usa menos (-) para gastos)",
+            btnSubmit: "Agregar Transacción",
+            btnReset: "Restablecer Datos",
+            phDesc: "ej. Salario, Café...",
+            phAmount: "ej. 50 o -15",
+            alertFill: "¡Por favor complete la descripción y el monto!",
+            confirmReset: "¿Estás seguro de que deseas eliminar todas las transacciones?"
+        },
+        zh: {
+            balanceTitle: "总余额",
+            incomeTitle: "收入",
+            expenseTitle: "支出",
+            historyTitle: "交易历史",
+            addTitle: "添加新交易",
+            lblDesc: "描述",
+            lblAmount: "金额 (支出请用负数 (-))",
+            btnSubmit: "添加交易",
+            btnReset: "重置所有数据",
+            phDesc: "例如：薪水、咖啡...",
+            phAmount: "例如：50 或 -15",
+            alertFill: "请填写描述和金额！",
+            confirmReset: "确定要清除所有交易记录吗？"
+        }
+    };
+
+    function formatCurrency(number) {
+        let locale = 'id-ID';
+        if (currentCurrency === 'USD') locale = 'en-US';
+        if (currentCurrency === 'EUR') locale = 'de-DE';
+        if (currentCurrency === 'JPY') locale = 'ja-JP';
+
+        return new Intl.NumberFormat(locale, { 
+            style: 'currency', 
+            currency: currentCurrency, 
+            minimumFractionDigits: 0 
+        }).format(number);
+    }
+
+    function changeCurrency() {
+        const select = document.getElementById('currencySelect');
+        currentCurrency = select.value;
+        updateValues();
+        init();
+    }
+
+    function changeLanguage() {
+        const select = document.getElementById('langSelect');
+        currentLang = select.value;
+        updateTexts();
+    }
+
+    function updateTexts() {
+        const t = translations[currentLang];
+        document.getElementById('txtBalanceTitle').innerText = t.balanceTitle;
+        document.getElementById('txtIncomeTitle').innerText = t.incomeTitle;
+        document.getElementById('txtExpenseTitle').innerText = t.expenseTitle;
+        document.getElementById('txtHistoryTitle').innerText = t.historyTitle;
+        document.getElementById('txtAddTitle').innerText = t.addTitle;
+        document.getElementById('lblDesc').innerText = t.lblDesc;
+        document.getElementById('lblAmount').innerText = t.lblAmount;
+        document.getElementById('btnSubmit').innerText = t.btnSubmit;
+        document.getElementById('btnReset').innerText = t.btnReset;
+        document.getElementById('text').placeholder = t.phDesc;
+        document.getElementById('amount').placeholder = t.phAmount;
+    }
+
     const balance = document.getElementById('balance');
     const moneyPlus = document.getElementById('money-plus');
     const moneyMinus = document.getElementById('money-minus');
@@ -94,24 +231,17 @@
     const text = document.getElementById('text');
     const amount = document.getElementById('amount');
 
-    // Mengambil data dari Local Storage (jika ada)
-    const localStorageTransactions = JSON.parse(localStorage.getItem('transactions'));
-    let transactions = localStorageTransactions !== null ? localStorageTransactions : [];
-
-    function formatRupiah(number) {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
-    }
-
     function addTransaction(e) {
         e.preventDefault();
+        const t = translations[currentLang];
 
         if (text.value.trim() === '' || amount.value.trim() === '') {
-            alert('Mohon isi keterangan dan nominal!');
+            alert(t.alertFill);
             return;
         }
 
         const transaction = {
-            id: generateID(),
+            id: Math.floor(Math.random() * 100000000),
             text: text.value,
             amount: +amount.value
         };
@@ -125,10 +255,6 @@
         amount.value = '';
     }
 
-    function generateID() {
-        return Math.floor(Math.random() * 100000000);
-    }
-
     function addTransactionDOM(transaction) {
         const sign = transaction.amount < 0 ? '-' : '+';
         const item = document.createElement('li');
@@ -136,7 +262,7 @@
         item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
 
         item.innerHTML = `
-            ${transaction.text} <span>${sign} ${formatRupiah(Math.abs(transaction.amount))}</span>
+            ${transaction.text} <span>${sign} ${formatCurrency(Math.abs(transaction.amount))}</span>
             <button class="delete-btn" onclick="removeTransaction(${transaction.id})">x</button>
         `;
 
@@ -155,9 +281,9 @@
             amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0) * -1
         );
 
-        balance.innerText = formatRupiah(total);
-        moneyPlus.innerText = formatRupiah(income);
-        moneyMinus.innerText = formatRupiah(-expense);
+        balance.innerText = formatCurrency(total);
+        moneyPlus.innerText = formatCurrency(income);
+        moneyMinus.innerText = formatCurrency(-expense);
     }
 
     function removeTransaction(id) {
@@ -166,14 +292,13 @@
         init();
     }
 
-    // Update Local Storage
     function updateLocalStorage() {
         localStorage.setItem('transactions', JSON.stringify(transactions));
     }
 
-    // Fitur Reset Data
     function resetData() {
-        if (confirm('Yakin ingin menghapus semua data transaksi?')) {
+        const t = translations[currentLang];
+        if (confirm(t.confirmReset)) {
             transactions = [];
             updateLocalStorage();
             init();
