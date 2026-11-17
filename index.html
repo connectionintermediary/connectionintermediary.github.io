@@ -11,7 +11,7 @@
     <meta name="author" content="SakuKu App">
     <meta name="robots" content="index, follow">
 
-    <!-- Open Graph Meta Tags (Untuk tampilan rapi saat dibagikan ke WhatsApp/Social Media) -->
+    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="SakuKu - Aplikasi Pencatat Keuangan & Expense Tracker">
     <meta property="og:description" content="Catat pemasukan dan pengeluaran harian dengan mudah secara online. Cek saldo otomatis dalam satu aplikasi!">
     <meta property="og:type" content="website">
@@ -41,6 +41,8 @@
         .list li.minus { border-right-color: #e74c3c; }
         .delete-btn { position: absolute; background: #e74c3c; color: white; border: none; padding: 2px 6px; font-size: 10px; border-radius: 4px; cursor: pointer; right: -25px; top: 12px; display: none; }
         .list li:hover .delete-btn { display: block; }
+        .reset-btn { background: #e74c3c; margin-top: 15px; }
+        .reset-btn:hover { background: #c0392b; }
     </style>
 </head>
 <body>
@@ -79,6 +81,8 @@
         </div>
         <button type="submit">Tambah Transaksi</button>
     </form>
+    
+    <button class="reset-btn" onclick="resetData()" style="margin-top: 10px; background-color: #6c757d;">Reset Semua Data</button>
 </div>
 
 <script>
@@ -90,7 +94,9 @@
     const text = document.getElementById('text');
     const amount = document.getElementById('amount');
 
-    let transactions = [];
+    // Mengambil data dari Local Storage (jika ada)
+    const localStorageTransactions = JSON.parse(localStorage.getItem('transactions'));
+    let transactions = localStorageTransactions !== null ? localStorageTransactions : [];
 
     function formatRupiah(number) {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
@@ -113,6 +119,7 @@
         transactions.push(transaction);
         addTransactionDOM(transaction);
         updateValues();
+        updateLocalStorage();
         
         text.value = '';
         amount.value = '';
@@ -155,7 +162,22 @@
 
     function removeTransaction(id) {
         transactions = transactions.filter(transaction => transaction.id !== id);
+        updateLocalStorage();
         init();
+    }
+
+    // Update Local Storage
+    function updateLocalStorage() {
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+    }
+
+    // Fitur Reset Data
+    function resetData() {
+        if (confirm('Yakin ingin menghapus semua data transaksi?')) {
+            transactions = [];
+            updateLocalStorage();
+            init();
+        }
     }
 
     function init() {
